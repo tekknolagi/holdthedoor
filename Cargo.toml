@@ -1,0 +1,12 @@
+[package]
+name = "holdthedoor"
+version = "0.1.0"
+authors = ["Maxwell Bernstein <tekknolagi@gmail.com>"]
+
+[dependencies]
+serde = "0.9"
+serde_derive = "0.9"
+serde_json = "0.9"
+chrono = { version = "0.3", features = ["serde"] }
+time = "*"
+jfs = "0.3.0"
