@@ -3,7 +3,7 @@ extern crate chrono;
 
 use self::chrono::prelude::*;
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Person {
     pub id: u64,
     pub name: String,
