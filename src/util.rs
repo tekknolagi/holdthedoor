@@ -14,19 +14,28 @@ pub struct Env {
     pub date: DateTime<Local>,
 }
 
+impl Env {
+    pub fn current(person: Person) -> Env {
+        Env { person: person, date: Local::now() }
+    }
+}
+
 trait Rule {
     fn is_satisfied(&self, env: &Env) -> bool;
 }
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct DateTimeRange {
+    pub id: u64,
     pub start: DateTime<Local>,
     pub end: DateTime<Local>,
 }
 
 impl Rule for DateTimeRange {
     fn is_satisfied(&self, env: &Env) -> bool {
-        env.date >= self.start && env.date <= self.end
+        env.person.id == self.id &&
+        env.date >= self.start &&
+        env.date <= self.end
     }
 }
 
@@ -39,6 +48,7 @@ struct TimeRange {
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct DayOfWeek {
+    id: u64,
     days: Vec<TimeRange>,
 }
 
@@ -55,9 +65,31 @@ impl Rule for DayOfWeek {
 }
 
 #[derive(Serialize, Deserialize, Debug)]
+pub struct MemberOfSuite {
+    id: u64,
+}
+
+impl Rule for MemberOfSuite {
+    fn is_satisfied(&self, env: &Env) -> bool {
+        self.id == env.person.id
+    }
+}
+
+#[derive(Serialize, Deserialize, Debug)]
 pub enum RuleObj {
     DTR(DateTimeRange),
     DOW(DayOfWeek),
+    MOS(MemberOfSuite),
+}
+
+impl RuleObj {
+    pub fn is_satisfied(&self, env: &Env) -> bool {
+        match *self {
+            RuleObj::DTR(ref rule) => rule.is_satisfied(env),
+            RuleObj::DOW(ref rule) => rule.is_satisfied(env),
+            RuleObj::MOS(ref rule) => rule.is_satisfied(env),
+        }
+    }
 }
 
 #[cfg(test)]

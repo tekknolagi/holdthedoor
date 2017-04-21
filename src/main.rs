@@ -5,7 +5,6 @@ extern crate chrono;
 
 extern crate jfs;
 
-// use self::chrono::prelude::Local;
 use std::error::Error;
 use std::fs::File;
 use std::io::prelude::*;
@@ -19,18 +18,32 @@ struct Db {
     rules: Vec<util::RuleObj>,
 }
 
-fn main() {
-    let path = Path::new("db.json");
-    let mut file = match File::open(&path) {
-        Err(why) => panic!("couldn't open {}: {}", path.display(), why.description()),
-        Ok(file) => file
-    };
+impl Db {
+    fn is_satisfied(&self, env: &util::Env) -> bool {
+        self.rules.iter().any(|rule| {
+            rule.is_satisfied(env)
+        })
+    }
 
-    let mut s = String::new();
-    let db : Db = match file.read_to_string(&mut s) {
-        Err(why) => panic!("couldn't read {}: {}", path.display(), why.description()),
-        Ok(_) => serde_json::from_str(&s).unwrap()
-    };
+    fn open(dbfile: &str) -> Db {
+        let path = Path::new(dbfile);
+        let mut file = match File::open(&path) {
+            Err(why) => panic!("couldn't open {}: {}", path.display(), why.description()),
+            Ok(file) => file
+        };
+
+        let mut s = String::new();
+        match file.read_to_string(&mut s) {
+            Err(why) => panic!("couldn't read {}: {}", path.display(), why.description()),
+            Ok(_) => serde_json::from_str(&s).unwrap()
+        }
+    }
+}
+
+fn main() {
+    let db = Db::open("db.json");
+    let curenv = util::Env::current(db.people[0].clone());
 
     println!("Hello, {}", db.people[0].name);
+    println!("satisfied? {:?}", db.is_satisfied(&curenv));
 }
