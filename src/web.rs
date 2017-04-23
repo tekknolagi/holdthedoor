@@ -18,13 +18,13 @@ fn index() -> String {
     format!("{:#?}", db.people[0])
 }
 
-#[get("/newperson")]
-fn newperson() -> Template {
-    let context = util::Person { id: 5, name: "Butt".to_string() };
-    Template::render("newperson", &context)
+#[get("/rules")]
+fn rules_list() -> Template {
+    let db = util::Db::open("db.json");
+    Template::render("rules/list", &db)
 }
 
 
 fn main() {
-    rocket::ignite().mount("/", routes![index, newperson]).launch();
+    rocket::ignite().mount("/", routes![index, rules_list]).launch();
 }

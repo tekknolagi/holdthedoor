@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+  <body>
+    <ul>
+      {{#each rules}}
+        {{#if DTR}}
+          <li>DTR: {{this.DTR.id}}</li>
+        {{/if}}
+        {{#if DOW}}
+          <li>DOW: {{this.DOW.id}}</li>
+        {{/if}}
+        {{#if MOS}}
+          <li>MOS: {{this.MOS.id}}</li>
+        {{/if}}
+      {{/each}}
+    </ul>
+  </body>
+</html>
