@@ -74,7 +74,7 @@ fn people_find(id: u64) -> String {
 fn people_kill(id: u64) -> String {
     let mut db = util::Db::open("db.json");
     if db.person_exists(id) {
-        let person = db.person_by_id(id).unwrap();
+        let person = db.person_by_id(id).unwrap().clone();
         db.kill_person_by_id(id);
         db.write("db.json");
         format!("Success: killed {} (id {})", person.name, person.id)

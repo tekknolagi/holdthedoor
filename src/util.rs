@@ -141,8 +141,8 @@ impl Db {
         })
     }
 
-    pub fn person_by_id(&self, id: u64) -> Option<Person> {
-        self.people.iter().cloned().find(|person| {
+    pub fn person_by_id(&self, id: u64) -> Option<&Person> {
+        self.people.iter().find(|person| {
             person.id == id
         })
     }
