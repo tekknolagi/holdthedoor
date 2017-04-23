@@ -1,17 +1,32 @@
 <!doctype HTML>
 <html>
+  <head>
+    <style type="text/css">
+      .button button {
+        font-size: 35px;
+      }
+    </style>
+  </head>
   <body>
     <table>
       <tr>
-	<th> Name </th>
-	<th> ID </th>
+        <th> Name </th>
+        <th> ID </th>
       </tr>
 
       {{#each people}}
-      <tr>
-	<td> {{this.name}} </td>
-	<td> {{this.id}} </td>
-      </tr>
+        <tr>
+          <td> <a href="/people/{{this.id}}">{{this.name}}</a> </td>
+          <td> {{this.id}} </td>
+          <td>
+            <form action="/people/kill/{{this.id}}" method="POST">
+              <input type="hidden" name="id" value="{{this.id}}">
+              <div class="button">
+                <button type="submit">☠</button>
+              </div>
+            </form>
+          </td>
+        </tr>
       {{/each}} 
     </table>
   </body>

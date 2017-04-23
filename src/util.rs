@@ -30,7 +30,7 @@ trait Rule {
     fn is_satisfied(&self, env: &Env) -> bool;
 }
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct DateTimeRange {
     pub id: u64,
     pub start: DateTime<Local>,
@@ -45,14 +45,14 @@ impl Rule for DateTimeRange {
     }
 }
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 struct TimeRange {
     day: u32,
     start: NaiveTime,
     end: NaiveTime,
 }
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct DayOfWeek {
     id: u64,
     days: Vec<TimeRange>,
@@ -71,7 +71,7 @@ impl Rule for DayOfWeek {
     }
 }
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct MemberOfSuite {
     id: u64,
 }
@@ -82,7 +82,7 @@ impl Rule for MemberOfSuite {
     }
 }
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub enum RuleObj {
     DTR(DateTimeRange),
     DOW(DayOfWeek),
@@ -133,6 +133,27 @@ impl Db {
         f.write_all(s.as_bytes())?;
         f.sync_all()?;
         Ok(())
+    }
+
+    pub fn person_exists(&self, id: u64) -> bool {
+        self.people.iter().any(|person| {
+            person.id == id
+        })
+    }
+
+    pub fn person_by_id(&self, id: u64) -> Option<&Person> {
+        self.people.iter().find(|person| {
+            person.id == id
+        })
+    }
+
+    pub fn kill_person_by_id(&self, id: u64) -> Db {
+        Db {
+            people: self.people.iter().cloned().filter(|person| {
+                        person.id != id
+                    }).collect(),
+            rules: self.rules.iter().cloned().collect()
+        }
     }
 }
 

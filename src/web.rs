@@ -51,15 +51,42 @@ impl PersonForm {
 fn post_people_add(user_input: Form<PersonForm>) -> String {
     let input: util::Person = user_input.into_inner().to_person();
     let mut db = util::Db::open("db.json");
-    db.people.push(input.clone());
-    db.write("db.json");
-    format!("{:#?}", input)
+    if db.person_exists(input.id) {
+        "Error: person exists".to_string()
+    }
+    else {
+        db.people.push(input.clone());
+        db.write("db.json");
+        format!("{:#?}", input)
+    }
+}
+
+#[get("/<id>")]
+fn people_find(id: u64) -> String {
+    let db = util::Db::open("db.json");
+    match db.person_by_id(id) {
+        None => "Error: person does not exist".to_string(),
+        Some(person) => format!("{:#?}", person)
+    }
+}
+
+#[post("/kill/<id>")]
+fn people_kill(id: u64) -> String {
+    let db = util::Db::open("db.json");
+    if db.person_exists(id) {
+        let person = db.person_by_id(id).unwrap();
+        db.kill_person_by_id(id).write("db.json");
+        format!("Success: killed {} (id {})", person.name, person.id)
+    }
+    else {
+        "Error: person does not exist".to_string()
+    }
 }
 
 fn main() {
     rocket::ignite()
         .mount("/", routes![index])
         .mount("/rules", routes![rules_list])
-        .mount("/people", routes![people_list, people_add, post_people_add])
+        .mount("/people", routes![people_list, people_add, post_people_add, people_find, people_kill])
         .launch();
 }
