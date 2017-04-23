@@ -49,7 +49,10 @@ impl PersonForm {
 
 #[post("/add", data="<user_input>")]
 fn post_people_add(user_input: Form<PersonForm>) -> String {
-    let input: util::Person = user_input.get().to_person();
+    let input: util::Person = user_input.into_inner().to_person();
+    let mut db = util::Db::open("db.json");
+    db.people.push(input.clone());
+    db.write("db.json");
     format!("{:#?}", input)
 }
 

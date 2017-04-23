@@ -125,6 +125,15 @@ impl Db {
             Ok(_) => serde_json::from_str(&s).unwrap()
         }
     }
+
+    pub fn write(&self, dbfile: &str) -> serde_json::Result<()> {
+        let json = serde_json::to_string(self)?;
+        let s = format!("{}", json);
+        let mut f = File::create(dbfile)?;
+        f.write_all(s.as_bytes())?;
+        f.sync_all()?;
+        Ok(())
+    }
 }
 
 
