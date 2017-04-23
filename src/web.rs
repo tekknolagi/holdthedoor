@@ -24,7 +24,6 @@ fn rules_list() -> Template {
     Template::render("rules/list", &db)
 }
 
-
 fn main() {
     rocket::ignite().mount("/", routes![index, rules_list]).launch();
 }

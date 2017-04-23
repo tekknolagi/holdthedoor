@@ -62,11 +62,12 @@ impl Rule for DayOfWeek {
     fn is_satisfied(&self, env: &Env) -> bool {
         let current_day = env.date.weekday().number_from_monday();
         let current_time = env.date.time();
-        self.days.iter().any(|tr| {
-            current_day == tr.day &&
-            current_time >= tr.start &&
-            current_time <= tr.end
-        })
+        env.person.id == self.id &&
+            self.days.iter().any(|tr| {
+                current_day == tr.day &&
+                    current_time >= tr.start &&
+                    current_time <= tr.end
+            })
     }
 }
 
