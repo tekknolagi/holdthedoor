@@ -72,10 +72,11 @@ fn people_find(id: u64) -> String {
 
 #[post("/kill/<id>")]
 fn people_kill(id: u64) -> String {
-    let db = util::Db::open("db.json");
+    let mut db = util::Db::open("db.json");
     if db.person_exists(id) {
         let person = db.person_by_id(id).unwrap();
-        db.kill_person_by_id(id).write("db.json");
+        db.kill_person_by_id(id);
+        db.write("db.json");
         format!("Success: killed {} (id {})", person.name, person.id)
     }
     else {

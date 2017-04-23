@@ -141,19 +141,16 @@ impl Db {
         })
     }
 
-    pub fn person_by_id(&self, id: u64) -> Option<&Person> {
-        self.people.iter().find(|person| {
+    pub fn person_by_id(&self, id: u64) -> Option<Person> {
+        self.people.iter().cloned().find(|person| {
             person.id == id
         })
     }
 
-    pub fn kill_person_by_id(&self, id: u64) -> Db {
-        Db {
-            people: self.people.iter().cloned().filter(|person| {
-                        person.id != id
-                    }).collect(),
-            rules: self.rules.iter().cloned().collect()
-        }
+    pub fn kill_person_by_id(&mut self, id: u64) -> () {
+        self.people.retain(|person| {
+            person.id != id
+        })
     }
 }
 
