@@ -1,0 +1,18 @@
+<!doctype HTML>
+<html>
+  <body>
+    <table>
+      <tr>
+	<th> Name </th>
+	<th> ID </th>
+      </tr>
+
+      {{#each people}}
+      <tr>
+	<td> {{this.name}} </td>
+	<td> {{this.id}} </td>
+      </tr>
+      {{/each}} 
+    </table>
+  </body>
+</html>
