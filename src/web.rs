@@ -18,7 +18,7 @@ mod util;
 #[get("/")]
 fn index() -> String {
     let db = util::Db::open("db.json");
-    format!("{:#?}", db.people[0])
+    format!("{:#?}", db)
 }
 
 #[get("/")]
