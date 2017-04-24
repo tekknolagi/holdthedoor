@@ -1,0 +1,42 @@
+<!DOCTYPE HTML>
+<html>
+  <head>
+    <style type="text/css">
+      .button button {
+        font-size: 35px;
+      }
+    </style>
+    <script src="/static/zepto.min.js"></script>
+    <script src="/static/mustache.min.js"></script>
+    <script src="/static/app.js"></script>
+
+    <script id="people-template" type="x-tmpl-mustache">
+      <table>
+        <tr>
+          <th> Name </th>
+          <th> ID </th>
+          <th> Delete </th>
+        </tr>
+
+        {{#people}}
+          <tr>
+            <td> <a href="/people/{{id}}">{{name}}</a> </td>
+            <td> {{id}} </td>
+            <td>
+              <form action="/people/kill/{{id}}" method="POST">
+                <input type="hidden" name="id" value="{{id}}">
+                <div class="button">
+                  <button type="submit">☠</button>
+                </div>
+              </form>
+            </td>
+          </tr>
+        {{/people}} 
+      </table>
+    </script>
+  </head>
+  <body>
+    <a href="/static/person_add.html">Add a new person</a>
+    <div id="people"></div>
+  </body>
+</html>

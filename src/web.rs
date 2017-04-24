@@ -1,6 +1,5 @@
 #![feature(plugin, custom_derive)]
 #![plugin(rocket_codegen)]
-#![allow(dead_code)]
 
 #[macro_use]
 extern crate serde_derive;
@@ -9,16 +8,23 @@ extern crate rocket;
 extern crate serde_json;
 extern crate rocket_contrib;
 
+use std::io;
+use std::path::{Path, PathBuf};
 use rocket::request::Form;
-use rocket_contrib::Template;
+use rocket_contrib::{Template, JSON};
+use rocket::response::NamedFile;
 use std::collections::HashMap;
 
 mod util;
 
 #[get("/")]
-fn index() -> String {
-    let db = util::Db::open("db.json");
-    format!("{:#?}", db)
+fn index() -> io::Result<NamedFile> {
+    NamedFile::open("static/index.html")
+}
+
+#[get("/static/<file..>")]
+fn static_file(file: PathBuf) -> Option<NamedFile> {
+    NamedFile::open(Path::new("static/").join(file)).ok()
 }
 
 #[get("/")]
@@ -28,15 +34,9 @@ fn rules_list() -> Template {
 }
 
 #[get("/")]
-fn people_list() -> Template {
+fn people_list() -> JSON<Vec<util::Person>> {
     let db = util::Db::open("db.json");
-    Template::render("people/list", &db)
-}
-
-#[get("/add")]
-fn people_add() -> Template {
-    let ctx = HashMap::<String,String>::new();
-    Template::render("people/add", &ctx)
+    JSON(db.people)
 }
 
 #[derive(FromForm)]
@@ -48,7 +48,7 @@ impl PersonForm {
 }
 
 #[post("/add", data="<user_input>")]
-fn post_people_add(user_input: Form<PersonForm>) -> String {
+fn people_add(user_input: Form<PersonForm>) -> String {
     let input: util::Person = user_input.into_inner().to_person();
     let mut db = util::Db::open("db.json");
     if db.person_exists(input.id) {
@@ -86,8 +86,8 @@ fn people_kill(id: u64) -> String {
 
 fn main() {
     rocket::ignite()
-        .mount("/", routes![index])
+        .mount("/", routes![index, static_file])
         .mount("/rules", routes![rules_list])
-        .mount("/people", routes![people_list, people_add, post_people_add, people_find, people_kill])
+        .mount("/people", routes![people_list, people_add, people_find, people_kill])
         .launch();
 }
