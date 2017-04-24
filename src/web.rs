@@ -28,9 +28,9 @@ fn static_file(file: PathBuf) -> Option<NamedFile> {
 }
 
 #[get("/")]
-fn rules_list() -> Template {
+fn rules_list() -> JSON<Vec<util::RuleObj>> {
     let db = util::Db::open("db.json");
-    Template::render("rules/list", &db)
+    JSON(db.rules)
 }
 
 #[get("/")]
