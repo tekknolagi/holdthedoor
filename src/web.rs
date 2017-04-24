@@ -27,16 +27,10 @@ fn static_file(file: PathBuf) -> Option<NamedFile> {
     NamedFile::open(Path::new("static/").join(file)).ok()
 }
 
-#[get("/")]
-fn rules_list() -> JSON<Vec<util::RuleObj>> {
+#[get("/db")]
+fn get_db() -> JSON<util::Db> {
     let db = util::Db::open("db.json");
-    JSON(db.rules)
-}
-
-#[get("/")]
-fn people_list() -> JSON<Vec<util::Person>> {
-    let db = util::Db::open("db.json");
-    JSON(db.people)
+    JSON(db)
 }
 
 #[derive(FromForm)]
@@ -61,15 +55,6 @@ fn people_add(user_input: Form<PersonForm>) -> String {
     }
 }
 
-#[get("/<id>")]
-fn people_find(id: u64) -> String {
-    let db = util::Db::open("db.json");
-    match db.person_by_id(id) {
-        None => "Error: person does not exist".to_string(),
-        Some(person) => format!("{:#?}", person)
-    }
-}
-
 #[post("/kill/<id>")]
 fn people_kill(id: u64) -> String {
     let mut db = util::Db::open("db.json");
@@ -86,8 +71,7 @@ fn people_kill(id: u64) -> String {
 
 fn main() {
     rocket::ignite()
-        .mount("/", routes![index, static_file])
-        .mount("/rules", routes![rules_list])
-        .mount("/people", routes![people_list, people_add, people_find, people_kill])
+        .mount("/", routes![index, static_file, get_db])
+        .mount("/people", routes![people_add, people_kill])
         .launch();
 }

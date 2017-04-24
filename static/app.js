@@ -1,7 +1,7 @@
 Zepto(function($) {
-    $.getJSON("/people", function (data) {
+    $.getJSON("/db", function (data) {
         var template = $('#people-template').html();
-        var rendered = Mustache.render(template, { people: data });
+        var rendered = Mustache.render(template, data);
         $('#people').html(rendered);
     });
 });
