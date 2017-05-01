@@ -1,5 +1,9 @@
+#![feature(plugin, custom_derive)]
+#![plugin(rocket_codegen)]
 #[macro_use]
 extern crate serde_derive;
+
+extern crate rocket;
 
 mod util;
 

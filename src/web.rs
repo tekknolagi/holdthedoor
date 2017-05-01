@@ -11,7 +11,7 @@ extern crate rocket_contrib;
 use std::io;
 use std::path::{Path, PathBuf};
 use rocket::request::Form;
-use rocket_contrib::{Template, JSON};
+use rocket_contrib::JSON;
 use rocket::response::NamedFile;
 use std::collections::HashMap;
 
@@ -33,17 +33,9 @@ fn get_db() -> JSON<util::Db> {
     JSON(db)
 }
 
-#[derive(FromForm)]
-struct PersonForm { id: u64, name: String }
-impl PersonForm {
-    pub fn to_person(&self) -> util::Person {
-        util::Person { id: self.id, name: self.name.clone() }
-    }
-}
-
 #[post("/add", data="<user_input>")]
-fn people_add(user_input: Form<PersonForm>) -> String {
-    let input: util::Person = user_input.into_inner().to_person();
+fn people_add(user_input: Form<util::Person>) -> String {
+    let input: util::Person = user_input.into_inner();
     let mut db = util::Db::open("db.json");
     if db.person_exists(input.id) {
         "Error: person exists".to_string()

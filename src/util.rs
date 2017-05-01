@@ -9,7 +9,7 @@ use std::path::Path;
 
 use self::chrono::prelude::*;
 
-#[derive(Serialize, Deserialize, Debug, Clone)]
+#[derive(Serialize, Deserialize, Debug, Clone, FromForm)]
 pub struct Person {
     pub id: u64,
     pub name: String,
