@@ -14,6 +14,8 @@ use rocket::request::Form;
 use rocket_contrib::JSON;
 use rocket::response::NamedFile;
 use std::collections::HashMap;
+use std::hash::{Hash, SipHasher, Hasher};
+use std::fmt;
 
 mod util;
 
@@ -27,16 +29,20 @@ fn static_file(file: PathBuf) -> Option<NamedFile> {
     NamedFile::open(Path::new("static/").join(file)).ok()
 }
 
+fn opendb() -> util::Db {
+    util::Db::open("db.json")
+}
+
 #[get("/db")]
 fn get_db() -> JSON<util::Db> {
-    let db = util::Db::open("db.json");
+    let db = opendb();
     JSON(db)
 }
 
 #[post("/add", data="<user_input>")]
 fn people_add(user_input: Form<util::Person>) -> String {
     let input: util::Person = user_input.into_inner();
-    let mut db = util::Db::open("db.json");
+    let mut db = opendb();
     if db.person_exists(input.id) {
         "Error: person exists".to_string()
     }
@@ -49,7 +55,7 @@ fn people_add(user_input: Form<util::Person>) -> String {
 
 #[post("/kill/<id>")]
 fn people_kill(id: u64) -> String {
-    let mut db = util::Db::open("db.json");
+    let mut db = opendb();
     if db.person_exists(id) {
         let person = db.person_by_id(id).unwrap().clone();
         db.kill_person_by_id(id);
@@ -61,9 +67,27 @@ fn people_kill(id: u64) -> String {
     }
 }
 
+struct Rules(Vec<util::RuleObj>);
+
+impl fmt::Display for Rules {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "Rules:\n");
+        for r in &self.0 { write!(f, "{}\n", r); }
+        Ok(())
+    }
+}
+
+
+#[get("/")]
+fn rules_list() -> String {
+    let db = opendb();
+    format!("{}", Rules(db.rules))
+}
+
 fn main() {
     rocket::ignite()
         .mount("/", routes![index, static_file, get_db])
         .mount("/people", routes![people_add, people_kill])
+        .mount("/rules", routes![rules_list])
         .launch();
 }

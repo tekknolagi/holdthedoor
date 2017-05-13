@@ -6,6 +6,7 @@ use std::error::Error;
 use std::fs::File;
 use std::io::prelude::*;
 use std::path::Path;
+use std::fmt;
 
 use self::chrono::prelude::*;
 
@@ -45,6 +46,16 @@ impl Rule for DateTimeRange {
     }
 }
 
+impl fmt::Display for DateTimeRange {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        let s = self.start;
+        let e = self.end;
+        write!(f, "{} from {}/{} @ {}:{} to {}/{} @ {}:{}", self.id,
+               s.month(), s.day(), s.hour(), s.minute(),
+               e.month(), e.day(), e.hour(), e.minute())
+    }
+}
+
 #[derive(Serialize, Deserialize, Debug, Clone)]
 struct TimeRange {
     day: u32,
@@ -52,10 +63,29 @@ struct TimeRange {
     end: NaiveTime,
 }
 
+impl fmt::Display for TimeRange {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{} from {}:{} to {}:{}",
+               vec!["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"][self.day as usize],
+               self.start.hour(), self.start.minute(),
+               self.end.hour(), self.end.minute())
+    }
+}
+
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct DayOfWeek {
     id: u64,
     days: Vec<TimeRange>,
+}
+
+impl fmt::Display for DayOfWeek {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{} on ", self.id);
+        for d in &self.days {
+            write!(f, "{} ", d);
+        }
+        Ok(())
+    }
 }
 
 impl Rule for DayOfWeek {
@@ -76,6 +106,12 @@ pub struct MemberOfSuite {
     id: u64,
 }
 
+impl fmt::Display for MemberOfSuite {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{} lives here", self.id)
+    }
+}
+
 impl Rule for MemberOfSuite {
     fn is_satisfied(&self, env: &Env) -> bool {
         self.id == env.person.id
@@ -87,6 +123,16 @@ pub enum RuleObj {
     DTR(DateTimeRange),
     DOW(DayOfWeek),
     MOS(MemberOfSuite),
+}
+
+impl fmt::Display for RuleObj {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match self {
+            &RuleObj::DTR(ref a) => write!(f, "{}", a),
+            &RuleObj::DOW(ref a) => write!(f, "{}", a),
+            &RuleObj::MOS(ref a) => write!(f, "{}", a)
+        }
+    }
 }
 
 impl RuleObj {
